@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>ZenDo | Centered Task Manager</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+    }
+
+    body {
+      min-height: 100vh;
+      background: linear-gradient(145deg, #f0f7ff 0%, #e9eef5 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem 1.5rem;
+    }
+
+    .todo-container {
+      max-width: 680px;
+      width: 100%;
+      margin: 0 auto;
+      background: rgba(255, 255, 255, 0.96);
+      backdrop-filter: blur(2px);
+      border-radius: 2.5rem;
+      box-shadow: 0 25px 45px -12px rgba(0, 0, 0, 0.25), 0 4px 12px rgba(0, 0, 0, 0.05);
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,0.5);
+    }
+
+    .todo-header {
+      padding: 1.8rem 2rem 1rem 2rem;
+      background: rgba(255,255,245,0.7);
+      border-bottom: 1px solid rgba(0,0,0,0.05);
+    }
+
+    .todo-header h1 {
+      font-size: 2rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, #1f2b3c, #2c3e4e);
+      background-clip: text;
+      -webkit-background-clip: text;
+      color: transparent;
+      letter-spacing: -0.3px;
+    }
+
+    .sub {
+      color: #5f7f9e;
+      font-size: 0.85rem;
+      margin-top: 8px;
+      font-weight: 500;
+    }
+
+    .add-task-area {
+      padding: 1.2rem 2rem 0.8rem 2rem;
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .task-input {
+      flex: 1;
+      padding: 14px 18px;
+      border: 2px solid #e2e8f0;
+      border-radius: 60px;
+      font-size: 1rem;
+      font-weight: 500;
+      background: white;
+      transition: all 0.2s;
+      outline: none;
+    }
+
+    .task-input:focus {
+      border-color: #3b82f6;
+      box-shadow: 0 0 0 3px rgba(59,130,246,0.2);
+    }
+
+    .add-btn {
+      background: #1f2b3c;
+      border: none;
+      padding: 0 28px;
+      border-radius: 60px;
+      font-weight: 600;
+      font-size: 1rem;
+      cursor: pointer;
+      color: white;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: 0.2s;
+    }
+
+    .add-btn:hover {
+      background: #2c3e4e;
+      transform: scale(0.97);
+    }
+
+    .tasks-list-wrapper {
+      padding: 0.5rem 2rem 2rem 2rem;
+    }
+
+    .tasks-counter {
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #6c8fae;
+      margin-bottom: 1rem;
+      display: flex;
+      justify-content: space-between;
+      border-bottom: 1px dashed #dee4ec;
+      padding-bottom: 8px;
+    }
+
+    .tasks-container {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      max-height: 460px;
+      overflow-y: auto;
+      padding-right: 4px;
+    }
+
+    .tasks-container::-webkit-scrollbar {
+      width: 5px;
+    }
+    .tasks-container::-webkit-scrollbar-track {
+      background: #eef2f7;
+      border-radius: 10px;
+    }
+    .tasks-container::-webkit-scrollbar-thumb {
+      background: #b9cded;
+      border-radius: 10px;
+    }
+
+    .task-item {
+      background: white;
+      border-radius: 1.2rem;
+      padding: 0.9rem 1.2rem;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03), 0 1px 2px rgba(0,0,0,0.05);
+      transition: all 0.2s ease;
+      border: 1px solid #f0f2f5;
+    }
+
+    .task-item:hover {
+      transform: translateY(-2px);
+      border-color: #dce5f0;
+      box-shadow: 0 12px 20px -12px rgba(0,0,0,0.1);
+    }
+
+    .task-check {
+      width: 22px;
+      height: 22px;
+      cursor: pointer;
+      accent-color: #3b82f6;
+    }
+
+    .task-text {
+      flex: 1;
+      font-size: 1rem;
+      font-weight: 500;
+      color: #1f2b3c;
+      word-break: break-word;
+    }
+
+    .completed-task .task-text {
+      text-decoration: line-through;
+      color: #8ba0b3;
+    }
+
+    .delete-task {
+      background: transparent;
+      border: none;
+      font-size: 1.4rem;
+      cursor: pointer;
+      color: #bdc7d4;
+      width: 34px;
+      height: 34px;
+      border-radius: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+    }
+
+    .delete-task:hover {
+      background: #fee2e2;
+      color: #e5484d;
+    }
+
+    .empty-message {
+      text-align: center;
+      padding: 2rem 1rem;
+      background: #fafcff;
+      border-radius: 2rem;
+      color: #94a9c2;
+      font-weight: 500;
+      font-size: 0.9rem;
+      border: 1px dashed #cbdbe0;
+    }
+
+    .loader-icon {
+      display: inline-block;
+      width: 24px;
+      height: 24px;
+      border: 3px solid rgba(59,130,246,0.2);
+      border-radius: 50%;
+      border-top-color: #3b82f6;
+      animation: spin 0.7s linear infinite;
+      margin-right: 10px;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .footer-note {
+      background: #f8fafd;
+      padding: 0.9rem 2rem;
+      text-align: center;
+      font-size: 0.7rem;
+      color: #7f93aa;
+      border-top: 1px solid #edf2f7;
+    }
+
+    @media (max-width: 540px) {
+      .add-task-area { flex-direction: column; }
+      .add-btn { justify-content: center; padding: 12px; }
+    }
+  </style>
+</head>
+<body>
+<div class="todo-container">
+  <div class="todo-header">
+    <h1>✨ daily focus</h1>
+    <div class="sub">center your tasks — MongoDB Atlas backend</div>
+  </div>
+
+  <div class="add-task-area">
+    <input type="text" id="taskInput" class="task-input" placeholder="write a new task... e.g., 'review project'" autocomplete="off">
+    <button id="addTaskBtn" class="add-btn">➕ Add Task</button>
+  </div>
+
+  <div class="tasks-list-wrapper">
+    <div class="tasks-counter">
+      <span>📋 YOUR TASKS</span>
+      <span id="taskCount">0 tasks</span>
+    </div>
+    <div id="tasksContainer" class="tasks-container">
+      <div class="empty-message">✨ loading tasks from database...</div>
+    </div>
+  </div>
+  <div class="footer-note">
+    💾 each task saved to MongoDB Atlas | click ✔️ to complete | 🗑️ to delete
+  </div>
+</div>
+
+<script>
+  
+  const API_BASE = 'http://localhost:5000/api/tasks';
+
+  const taskInput = document.getElementById('taskInput');
+  const addBtn = document.getElementById('addTaskBtn');
+  const tasksContainer = document.getElementById('tasksContainer');
+  const taskCountSpan = document.getElementById('taskCount');
+
+  async function loadTasks() {
+    try {
+      tasksContainer.innerHTML = '<div class="empty-message"><span class="loader-icon"></span> syncing tasks...</div>';
+      const res = await fetch(API_BASE);
+      if (!res.ok) throw new Error('Server error');
+      const tasks = await res.json();
+      renderTasks(tasks);
+    } catch (err) {
+      console.error(err);
+      tasksContainer.innerHTML = '<div class="empty-message">⚠️ Cannot connect to backend. Make sure backend server is running on port 5000.</div>';
+      taskCountSpan.innerText = 'error';
+    }
+  }
+
+  function escapeHtml(str) {
+    if (!str) return '';
+    return str.replace(/[&<>]/g, function(m) {
+      if (m === '&') return '&amp;';
+      if (m === '<') return '&lt;';
+      if (m === '>') return '&gt;';
+      return m;
+    });
+  }
+
+  function renderTasks(tasks) {
+    if (!tasks.length) {
+      tasksContainer.innerHTML = '<div class="empty-message">✨ no pending tasks — add something meaningful ✨</div>';
+      taskCountSpan.innerText = '0 tasks';
+      return;
+    }
+    const tasksHtml = tasks.map(task => {
+      const completedClass = task.completed ? 'completed-task' : '';
+      const checkedAttr = task.completed ? 'checked' : '';
+      return `
+        <div class="task-item ${completedClass}" data-task-id="${task._id}">
+          <input type="checkbox" class="task-check" ${checkedAttr} data-id="${task._id}">
+          <span class="task-text">${escapeHtml(task.title)}</span>
+          <button class="delete-task" data-id="${task._id}">🗑️</button>
+        </div>
+      `;
+    }).join('');
+    tasksContainer.innerHTML = tasksHtml;
+    taskCountSpan.innerText = `${tasks.length} ${tasks.length === 1 ? 'task' : 'tasks'}`;
+
+    // Attach event listeners for checkboxes (toggle complete)
+    document.querySelectorAll('.task-check').forEach(cb => {
+      cb.addEventListener('change', async (e) => {
+        const id = cb.getAttribute('data-id');
+        try {
+          await fetch(`${API_BASE}/${id}`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ completed: cb.checked })
+          });
+          await loadTasks(); // refresh list
+        } catch (err) {
+          alert('Failed to update task');
+        }
+      });
+    });
+
+    // Attach delete listeners
+    document.querySelectorAll('.delete-task').forEach(btn => {
+      btn.addEventListener('click', async (e) => {
+        const id = btn.getAttribute('data-id');
+        try {
+          await fetch(`${API_BASE}/${id}`, { method: 'DELETE' });
+          await loadTasks();
+        } catch (err) {
+          alert('Failed to delete task');
+        }
+      });
+    });
+  }
+
+  async function addTask(title) {
+    if (!title.trim()) {
+      alert('Please enter a task 😊');
+      return false;
+    }
+    try {
+      const res = await fetch(API_BASE, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ title: title.trim() })
+      });
+      if (!res.ok) {
+        const errData = await res.json();
+        alert(errData.error || 'Failed to add task');
+        return false;
+      }
+      return true;
+    } catch (err) {
+      alert('Network error: cannot reach backend');
+      return false;
+    }
+  }
+
+  async function handleAddTask() {
+    const success = await addTask(taskInput.value);
+    if (success) {
+      taskInput.value = '';
+      await loadTasks();
+    }
+  }
+
+  addBtn.addEventListener('click', handleAddTask);
+  taskInput.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') handleAddTask();
+  });
+
+  loadTasks();
+</script>
+</body>
+</html>
